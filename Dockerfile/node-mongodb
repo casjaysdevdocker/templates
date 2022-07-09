@@ -1,13 +1,50 @@
-FROM node
-WORKDIR /usr/src/app
+FROM casjaysdevdocker/node AS build
 
-RUN apt-get update && apt-get install -yy mongodb mongodb-server mongo-tools && apt-get dist-upgrade -yy
+ENV \
+  SHELL=/bin/bash; \
+  TERM=xterm-256color; \
+  HOSTNAME=${HOSTNAME:-casjaysdev-php}; \
+  TZ=${TZ:-America/New_York};
+
+RUN apt-get update && \
+  apt-get dist-upgrade -yy && \
+  apt-get install -yy \
+  mongodb \
+  mongodb-server \
+  mongo-tools
 
 COPY ./init /usr/src/app/init
 COPY ./server /usr/src/app/server
 COPY ./client /usr/src/app/client
 
+FROM scratch
+
+ENV \
+  SHELL=/bin/bash; \
+  TERM=xterm-256color; \
+  HOSTNAME=${HOSTNAME:-casjaysdev-php}; \
+  TZ=${TZ:-America/New_York};
+
+LABEL \
+  org.label-schema.name="supabase" \
+  org.label-schema.description="supabase container based on Alpine Linux" \
+  org.label-schema.url="https://hub.docker.com/r/casjaysdevdocker/supabase" \
+  org.label-schema.vcs-url="https://github.com/casjaysdevdocker/supabase" \
+  org.label-schema.build-date=$BUILD_DATE \
+  org.label-schema.version=$BUILD_DATE \
+  org.label-schema.vcs-ref=$BUILD_DATE \
+  org.label-schema.license="WTFPL" \
+  org.label-schema.vcs-type="Git" \
+  org.label-schema.schema-version="latest" \
+  org.label-schema.vendor="CasjaysDev" \
+  maintainer="CasjaysDev <docker-admin@casjaysdev.com>" 
+
+COPY --from=build /. /
+
 EXPOSE 8080
 EXPOSE 5000
 EXPOSE 27017
+
+WORKDIR /usr/src/app
+
 CMD [ "bash", "/usr/src/app/init"  ]

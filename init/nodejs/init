@@ -27,7 +27,7 @@ echo "entering $PWD and running mongod ; server/start.sh ; client/start.sh " >..
 echo >>./app.log
 
 if [ -n "$MONGDB" ]; then
-  mongod -vvvv >./mongo.app.log 2>&1 &
+  mongod -vvvv >>./mongo.app.log 2>&1 &
 fi
 
 if [ -d "$SCRIPTDIR/server" ]; then
